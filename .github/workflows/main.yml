@@ -1,0 +1,43 @@
+name: Build Khatwat APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '*.zip'
+      - '.github/workflows/main.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find and extract project
+        run: |
+          ZIP_FILE=$(find . -maxdepth 1 -name '*.zip' | head -n 1)
+          test -n "$ZIP_FILE"
+          mkdir project
+          unzip -q "$ZIP_FILE" -d project
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        run: |
+          GRADLEW=$(find project -name gradlew -type f | head -n 1)
+          test -n "$GRADLEW"
+          cd "$(dirname "$GRADLEW")"
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Khatwat-APK
+          path: project/**/app/build/outputs/apk/debug/*.apk
