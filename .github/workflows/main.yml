@@ -31,7 +31,7 @@ jobs:
 
       - name: Build APK
         run: |
-          GRADLEW=$(find project -name gradlew -type f | head -n 1)
+          GRADLEW=$(find . -name gradlew -type f | head -n 1)
           echo "GRADLEW path: $GRADLEW"
           test -n "$GRADLEW"
           cd "$(dirname "$GRADLEW")"
