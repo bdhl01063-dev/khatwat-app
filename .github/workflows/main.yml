@@ -21,6 +21,7 @@ jobs:
           test -n "$ZIP_FILE"
           mkdir project
           unzip -q "$ZIP_FILE" -d project
+          ls -la project
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -31,13 +32,17 @@ jobs:
       - name: Build APK
         run: |
           GRADLEW=$(find project -name gradlew -type f | head -n 1)
+          echo "GRADLEW path: $GRADLEW"
           test -n "$GRADLEW"
           cd "$(dirname "$GRADLEW")"
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Khatwat-APK
-          path: project/**/app/build/outputs/apk/debug/*.apk
+          path: "**/app/build/outputs/apk/debug/*.apk"
+          if-no-files-found: ignore
+
